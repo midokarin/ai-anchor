@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的个人网页</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('data:image/jpeg;base64,');
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+        .content {
+            max-width: 600px;
+            text-align: center;
+        }
+        .chatbox {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            border: 2px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            overflow-y: scroll;
+            background: white;
+        }
+        .input-group {
+            display: flex;
+            margin-top: 10px;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 10px;
+            font-size: 1em;
+        }
+        .input-group button {
+            padding: 10px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+    
+</head>
+    
+<body>
+    <div class="container">
+        <div class="content">
+            <h1>欢迎来到我的个人网页</h1>
+            <p>名字：<span id="name">XXX</span></p>
+            <p>爱好：<span id="hobby">二次元</span></p>
+        </div>
+        <div class="chatbox" id="chatbox">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div class="input-group">
+            <input type="text" id="userInput" placeholder="输入你的消息...">
+            <button id="sendButton">发送</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to send user message
+        function sendMessage() {
+            var userInput = document.getElementById('userInput').value;
+            if (userInput.trim() !== '') {
+                var chatbox = document.getElementById('chatbox');
+                var userMessage = document.createElement('div');
+                userMessage.textContent = '你: ' + userInput;
+                chatbox.appendChild(userMessage);
+
+                // Log user input
+                console.log('User Input:', userInput);
+
+                // Get AI response
+                getAIResponse(userInput).then(aiResponse => {
+                    var aiMessage = document.createElement('div');
+                    aiMessage.textContent = 'AI: ' + aiResponse;
+                    chatbox.appendChild(aiMessage);
+
+                    // Clear input field
+                    document.getElementById('userInput').value = '';
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                }).catch(error => {
+                    console.error('Error in AI Response:', error);
+                    var errorMessage = document.createElement('div');
+                    errorMessage.textContent = 'AI响应失败';
+                    chatbox.appendChild(errorMessage);
+                });
+            } else {
+                console.log('Input is empty');
+            }
+        }
+
+        // Function to get AI response using fetch API
+        async function getAIResponse(input) {
+            try {
+                console.log('Fetching response for input:', input);
+                const response = await fetch(`http://localhost:8080/ai/chat?msg=${encodeURIComponent(input)}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const text = await response.text(); // Assuming the response is plain text
+                console.log('Received response:', text);
+                return text;
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+                return 'AI响应失败';
+            }
+        }
+
+        // Ensure the sendMessage function is called when the button is clicked
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+    </script>
+</body>
+</html>
